@@ -1,6 +1,6 @@
 # Monolithic Service
 
-Spring Boot monolithic backend with Employee CRUD APIs, profile-based database configuration, Flyway migrations, and static UI pages.
+Spring Boot monolith with Product Catalog and Inventory APIs, Flyway migrations, and static UI pages.
 
 ## Tech Stack
 - Java 17
@@ -12,75 +12,56 @@ Spring Boot monolithic backend with Employee CRUD APIs, profile-based database c
 - PostgreSQL (prod)
 - springdoc OpenAPI (Swagger UI)
 
-## Project Structure
-- `monolith-service/src/main/java/com/example/monolith_service/employee` - Employee domain (controller, service, repository, DTOs)
-- `monolith-service/src/main/java/com/example/monolith_service/error` - Global exception handling
-- `monolith-service/src/main/resources/db/migration` - Flyway SQL migrations
-- `monolith-service/src/main/resources/static` - Static pages (`login.html`, `index.html`)
-- `monolith-service/src/main/resources/application*.properties` - Profile-based configuration
-
 ## Features
-- Employee CRUD APIs
-- Pagination, sorting, and search on employee listing
-- Input validation (`@Valid` with clear validation messages)
-- Global exception handling for not found and validation errors
-- Flyway-managed schema migrations
-- Environment profiles:
-  - `dev` (default): in-memory H2
-  - `prod`: PostgreSQL via environment variables
+- Product CRUD APIs
+- Inventory adjustment endpoint
+- Pagination, sorting, and search for products
+- Request validation and global exception handling
+- Flyway-managed schema
+- Profiles:
+  - `dev` (default): H2 in-memory
+  - `prod`: PostgreSQL via env vars
 
-## API Endpoints
+## Endpoints
 Base URL: `http://localhost:8080`
 
 - `GET /` -> redirects to `/login.html`
-- `GET /health` -> returns `OK`
-- `POST /employees` -> create employee
-- `GET /employees` -> list employees (pagination/sort/search)
-- `GET /employees/{id}` -> get employee by id
-- `PUT /employees/{id}` -> update employee
-- `DELETE /employees/{id}` -> delete employee
+- `GET /health` -> `OK`
+- `POST /products`
+- `GET /products`
+- `GET /products/{id}`
+- `PUT /products/{id}`
+- `PATCH /products/{id}/inventory` (body: `{ "delta": 5 }` or negative)
+- `DELETE /products/{id}`
 
-### Query Parameters for `GET /employees`
-- `page` (default: `0`)
-- `size` (default: `10`, max: `100`)
-- `sortBy` (`id`, `firstName`, `lastName`, `email`; default: `id`)
-- `direction` (`asc` or `desc`; default: `asc`)
-- `search` (optional text search on firstName/lastName/email)
+## `GET /products` Query Params
+- `page` (default `0`)
+- `size` (default `10`, max `100`)
+- `sortBy` (`id`, `name`, `sku`, `price`, `quantity`)
+- `direction` (`asc`, `desc`)
+- `search` (optional: name or SKU)
 
-## Request Example
+## Product Request Example
 ```json
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com"
+  "name": "Wireless Mouse",
+  "sku": "MOUSE-WL-001",
+  "price": 25.99,
+  "quantity": 50
 }
 ```
 
 ## Run Locally
-From repo root:
-
-```bash
-cd monolith-service
-./mvnw spring-boot:run
-```
-
-For Windows PowerShell:
-
 ```powershell
 cd monolith-service
 .\mvnw.cmd spring-boot:run
 ```
 
-Application starts on `http://localhost:8080`.
+App URL: `http://localhost:8080`
 
-## Profile Configuration
-Default profile is `dev` (`application.properties`):
-- H2 in-memory DB
-- H2 console enabled at `/h2-console`
-
-Run with `prod` profile:
-
+## Production Profile Example
 ```powershell
+cd monolith-service
 $env:SPRING_PROFILES_ACTIVE="prod"
 $env:DB_URL="jdbc:postgresql://localhost:5432/monolithdb"
 $env:DB_USERNAME="postgres"
@@ -88,45 +69,9 @@ $env:DB_PASSWORD="postgres"
 .\mvnw.cmd spring-boot:run
 ```
 
-## API Documentation
-After startup, open:
+## API Docs
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 
-## Quick cURL Commands
-Create employee:
-
-```bash
-curl -X POST http://localhost:8080/employees \
-  -H "Content-Type: application/json" \
-  -d '{"firstName":"John","lastName":"Doe","email":"john.doe@example.com"}'
-```
-
-List employees:
-
-```bash
-curl "http://localhost:8080/employees?page=0&size=10&sortBy=id&direction=asc&search="
-```
-
-Get by id:
-
-```bash
-curl http://localhost:8080/employees/1
-```
-
-Update:
-
-```bash
-curl -X PUT http://localhost:8080/employees/1 \
-  -H "Content-Type: application/json" \
-  -d '{"firstName":"Jane","lastName":"Doe","email":"jane.doe@example.com"}'
-```
-
-Delete:
-
-```bash
-curl -X DELETE http://localhost:8080/employees/1
-```
-
 ## Notes
-- Flyway runs automatically on startup and applies SQL scripts from `db/migration`.
-- Runtime log/error files are intentionally not part of source code and should be gitignored.
+- Flyway migrations are in `monolith-service/src/main/resources/db/migration`.
+- Local runtime logs should be gitignored.

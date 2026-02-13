@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Workspace</title>
+    <title>Product and Inventory Workspace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -22,9 +22,7 @@
             --radius-md: 14px;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -45,12 +43,6 @@
             border: 1px solid rgba(20, 34, 24, 0.06);
             background: linear-gradient(145deg, #fffef9 0%, #fcf8ec 100%);
             box-shadow: var(--shadow);
-            animation: rise 520ms ease-out;
-        }
-
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(22px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .hero {
@@ -88,7 +80,7 @@
 
         .layout {
             display: grid;
-            grid-template-columns: 340px 1fr;
+            grid-template-columns: 360px 1fr;
             gap: 20px;
         }
 
@@ -105,10 +97,7 @@
             font-size: 1.18rem;
         }
 
-        form {
-            display: grid;
-            gap: 12px;
-        }
+        form { display: grid; gap: 12px; }
 
         label {
             display: grid;
@@ -126,7 +115,6 @@
             padding: 10px 11px;
             font-size: 0.96rem;
             outline: none;
-            transition: border-color 130ms ease, box-shadow 130ms ease;
         }
 
         input:focus {
@@ -146,21 +134,11 @@
             font-weight: 700;
             cursor: pointer;
             padding: 10px 12px;
-            transition: transform 120ms ease, opacity 120ms ease;
         }
 
-        button:hover { transform: translateY(-1px); }
-        button:active { transform: translateY(0); }
-
-        .btn-primary {
-            background: linear-gradient(120deg, var(--accent), var(--accent-2));
-            color: #fff;
-        }
-
-        .btn-muted {
-            background: var(--surface-muted);
-            color: var(--ink);
-        }
+        .btn-primary { background: linear-gradient(120deg, var(--accent), var(--accent-2)); color: #fff; }
+        .btn-muted { background: var(--surface-muted); color: var(--ink); }
+        .btn-danger { background: rgba(177, 62, 50, 0.14); color: var(--danger); }
 
         .toolbar {
             display: flex;
@@ -170,51 +148,9 @@
             margin-bottom: 14px;
         }
 
-        .list-controls {
-            display: grid;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
+        .list { display: grid; gap: 10px; max-height: 470px; overflow: auto; padding-right: 4px; }
 
-        .list-controls input {
-            padding: 9px 10px;
-            font-size: 0.9rem;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-
-        .pagination-info {
-            font-size: 0.86rem;
-            color: rgba(20, 34, 24, 0.72);
-        }
-
-        .page-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .page-buttons button:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .list {
-            display: grid;
-            gap: 10px;
-            max-height: 470px;
-            overflow: auto;
-            padding-right: 4px;
-        }
-
-        .employee-row {
+        .product-row {
             display: grid;
             grid-template-columns: 1fr auto;
             gap: 10px;
@@ -223,40 +159,12 @@
             border-radius: var(--radius-md);
             padding: 11px 13px;
             background: #fff;
-            transition: border-color 130ms ease, box-shadow 130ms ease;
         }
 
-        .employee-row:hover {
-            border-color: rgba(14, 124, 88, 0.45);
-            box-shadow: 0 8px 18px rgba(14, 124, 88, 0.08);
-        }
+        .name { font-size: 0.97rem; font-weight: 800; margin-bottom: 3px; }
+        .meta { font-size: 0.85rem; color: rgba(20, 34, 24, 0.66); }
 
-        .employee-row.selected {
-            border-color: rgba(14, 124, 88, 0.72);
-            box-shadow: 0 0 0 3px rgba(14, 124, 88, 0.14);
-        }
-
-        .name {
-            font-size: 0.97rem;
-            font-weight: 800;
-            margin-bottom: 3px;
-        }
-
-        .meta {
-            font-size: 0.85rem;
-            color: rgba(20, 34, 24, 0.66);
-            word-break: break-all;
-        }
-
-        .row-buttons {
-            display: flex;
-            gap: 7px;
-        }
-
-        .btn-danger {
-            background: rgba(177, 62, 50, 0.14);
-            color: var(--danger);
-        }
+        .row-buttons { display: flex; gap: 7px; flex-wrap: wrap; }
 
         .status {
             margin-top: 12px;
@@ -277,6 +185,15 @@
             background: #fff;
         }
 
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
         @media (max-width: 900px) {
             .app-shell { margin: 20px auto; padding: 15px; }
             .layout { grid-template-columns: 1fr; }
@@ -288,8 +205,8 @@
 <main class="app-shell">
     <header class="hero">
         <div>
-            <h1>Employee Workspace</h1>
-            <p class="subtitle">Create, edit, and manage your team with a fast Spring Boot UI.</p>
+            <h1>Product and Inventory Workspace</h1>
+            <p class="subtitle">Manage product catalog and stock levels in one place.</p>
         </div>
         <div class="actions">
             <span class="badge">Monolith Service</span>
@@ -299,20 +216,12 @@
 
     <section class="layout">
         <article class="card">
-            <h2 id="formTitle">Add Employee</h2>
-            <form id="employeeForm">
-                <label>
-                    First Name
-                    <input id="firstName" name="firstName" required maxlength="60" autocomplete="given-name">
-                </label>
-                <label>
-                    Last Name
-                    <input id="lastName" name="lastName" required maxlength="60" autocomplete="family-name">
-                </label>
-                <label>
-                    Email
-                    <input id="email" name="email" required maxlength="120" type="email" autocomplete="email">
-                </label>
+            <h2 id="formTitle">Add Product</h2>
+            <form id="productForm">
+                <label>Name<input id="name" required maxlength="120"></label>
+                <label>SKU<input id="sku" required maxlength="80"></label>
+                <label>Price<input id="price" type="number" min="0" step="0.01" required></label>
+                <label>Quantity<input id="quantity" type="number" min="0" step="1" required></label>
                 <div class="actions">
                     <button class="btn-primary" id="saveButton" type="submit">Create</button>
                     <button class="btn-muted" id="cancelButton" type="button">Clear</button>
@@ -323,16 +232,16 @@
 
         <article class="card">
             <div class="toolbar">
-                <h2 style="margin: 0;">Employees</h2>
+                <h2 style="margin: 0;">Products</h2>
                 <button class="btn-muted" id="refreshButton" type="button">Refresh</button>
             </div>
-            <div class="list-controls">
-                <input id="searchInput" type="search" placeholder="Search by first name, last name, or email">
+            <div class="actions" style="margin-bottom: 10px;">
+                <input id="searchInput" type="search" placeholder="Search by name or SKU" style="flex: 1; min-width: 180px;">
             </div>
-            <div class="list" id="employeeList"></div>
+            <div class="list" id="productList"></div>
             <div class="pagination">
-                <div class="pagination-info" id="paginationInfo">Page 1 of 1</div>
-                <div class="page-buttons">
+                <div id="paginationInfo">Page 1 of 1</div>
+                <div class="row-buttons">
                     <button class="btn-muted" id="prevPageButton" type="button">Previous</button>
                     <button class="btn-muted" id="nextPageButton" type="button">Next</button>
                 </div>
@@ -342,8 +251,8 @@
 </main>
 
 <script>
-    const form = document.getElementById("employeeForm");
-    const list = document.getElementById("employeeList");
+    const form = document.getElementById("productForm");
+    const list = document.getElementById("productList");
     const statusEl = document.getElementById("status");
     const formTitle = document.getElementById("formTitle");
     const saveButton = document.getElementById("saveButton");
@@ -354,17 +263,18 @@
     const paginationInfo = document.getElementById("paginationInfo");
     const prevPageButton = document.getElementById("prevPageButton");
     const nextPageButton = document.getElementById("nextPageButton");
-    const firstNameInput = document.getElementById("firstName");
-    const lastNameInput = document.getElementById("lastName");
-    const emailInput = document.getElementById("email");
 
-    const loggedInUser = sessionStorage.getItem("employeeAppUser");
-    if (!loggedInUser) {
+    const nameInput = document.getElementById("name");
+    const skuInput = document.getElementById("sku");
+    const priceInput = document.getElementById("price");
+    const quantityInput = document.getElementById("quantity");
+
+    if (!sessionStorage.getItem("workspaceUser")) {
         window.location.replace("/login.html");
     }
 
     let editingId = null;
-    let employeesCache = [];
+    let productsCache = [];
     let currentPage = 0;
     const pageSize = 10;
     let totalPages = 1;
@@ -380,76 +290,14 @@
     function resetForm() {
         editingId = null;
         form.reset();
-        formTitle.textContent = "Add Employee";
+        formTitle.textContent = "Add Product";
         saveButton.textContent = "Create";
-        highlightSelection();
         setStatus("");
-        firstNameInput.focus();
-    }
-
-    function highlightSelection() {
-        document.querySelectorAll(".employee-row").forEach((row) => {
-            const id = Number(row.dataset.id);
-            row.classList.toggle("selected", editingId === id);
-        });
-    }
-
-    function renderEmployees(items) {
-        list.innerHTML = "";
-
-        if (!items.length) {
-            list.innerHTML = '<div class="empty">No employees yet. Add one from the form.</div>';
-            return;
-        }
-
-        items.forEach((employee, index) => {
-            const row = document.createElement("div");
-            row.className = "employee-row";
-            row.dataset.id = employee.id;
-            row.style.animation = `rise 260ms ease-out ${index * 25}ms backwards`;
-            row.innerHTML = `
-                <div>
-                    <div class="name">${employee.firstName} ${employee.lastName}</div>
-                    <div class="meta">${employee.email}</div>
-                </div>
-                <div class="row-buttons">
-                    <button class="btn-muted" data-action="edit">Edit</button>
-                    <button class="btn-danger" data-action="delete">Delete</button>
-                </div>
-            `;
-
-            row.addEventListener("click", (event) => {
-                const button = event.target.closest("button");
-                if (!button) {
-                    return;
-                }
-
-                const action = button.getAttribute("data-action");
-                if (action === "edit") {
-                    startEdit(employee.id);
-                } else if (action === "delete") {
-                    deleteEmployee(employee.id);
-                }
-            });
-
-            list.appendChild(row);
-        });
-
-        highlightSelection();
-    }
-
-    function updatePagination(hasPrevious, hasNext, page, totalPageCount, totalItemCount) {
-        const safeTotalPages = Math.max(totalPageCount, 1);
-        paginationInfo.textContent = `Page ${page + 1} of ${safeTotalPages} | ${totalItemCount} total`;
-        prevPageButton.disabled = !hasPrevious;
-        nextPageButton.disabled = !hasNext;
     }
 
     async function requestJson(url, options = {}) {
         const response = await fetch(url, {
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             ...options
         });
 
@@ -458,8 +306,7 @@
             try {
                 const body = await response.json();
                 message = body.message || message;
-            } catch (_) {
-            }
+            } catch (_) {}
             throw new Error(message);
         }
 
@@ -470,7 +317,85 @@
         return response.json();
     }
 
-    async function loadEmployees() {
+    function renderProducts(items) {
+        list.innerHTML = "";
+        if (!items.length) {
+            list.innerHTML = '<div class="empty">No products found. Add one from the form.</div>';
+            return;
+        }
+
+        items.forEach((product) => {
+            const row = document.createElement("div");
+            row.className = "product-row";
+            row.innerHTML = `
+                <div>
+                    <div class="name">${product.name}</div>
+                    <div class="meta">SKU: ${product.sku} | Price: ${product.price} | Qty: ${product.quantity}</div>
+                </div>
+                <div class="row-buttons">
+                    <button class="btn-muted" data-action="edit">Edit</button>
+                    <button class="btn-muted" data-action="in">+5</button>
+                    <button class="btn-muted" data-action="out">-5</button>
+                    <button class="btn-danger" data-action="delete">Delete</button>
+                </div>
+            `;
+
+            row.addEventListener("click", (event) => {
+                const button = event.target.closest("button");
+                if (!button) return;
+
+                const action = button.getAttribute("data-action");
+                if (action === "edit") startEdit(product.id);
+                if (action === "delete") deleteProduct(product.id);
+                if (action === "in") adjustInventory(product.id, 5);
+                if (action === "out") adjustInventory(product.id, -5);
+            });
+
+            list.appendChild(row);
+        });
+    }
+
+    function startEdit(id) {
+        const product = productsCache.find((p) => p.id === id);
+        if (!product) return;
+
+        editingId = id;
+        formTitle.textContent = "Edit Product";
+        saveButton.textContent = "Update";
+        nameInput.value = product.name;
+        skuInput.value = product.sku;
+        priceInput.value = product.price;
+        quantityInput.value = product.quantity;
+        setStatus(`Editing ${product.name}`);
+    }
+
+    async function adjustInventory(id, delta) {
+        try {
+            await requestJson(`/products/${id}/inventory`, {
+                method: "PATCH",
+                body: JSON.stringify({ delta })
+            });
+            await loadProducts();
+            setStatus("Inventory updated.", "success");
+        } catch (error) {
+            setStatus(error.message, "error");
+        }
+    }
+
+    async function deleteProduct(id) {
+        try {
+            await requestJson(`/products/${id}`, { method: "DELETE" });
+            if (editingId === id) {
+                resetForm();
+            }
+            await loadProducts();
+            setStatus("Product deleted.", "success");
+        } catch (error) {
+            setStatus(error.message, "error");
+        }
+    }
+
+    async function loadProducts() {
         try {
             const params = new URLSearchParams({
                 page: String(currentPage),
@@ -478,63 +403,21 @@
                 sortBy: "id",
                 direction: "asc"
             });
+
             if (searchQuery) {
                 params.set("search", searchQuery);
             }
 
-            const data = await requestJson(`/employees?${params.toString()}`);
-            if ((data.totalPages || 0) > 0 && currentPage >= data.totalPages) {
-                currentPage = data.totalPages - 1;
-                await loadEmployees();
-                return;
-            }
-            employeesCache = data.items || [];
+            const data = await requestJson(`/products?${params.toString()}`);
+            productsCache = data.items || [];
             totalPages = data.totalPages || 1;
             totalElements = data.totalElements || 0;
-            renderEmployees(employeesCache);
-            updatePagination(data.hasPrevious, data.hasNext, data.page || 0, totalPages, totalElements);
-            if (!editingId) {
-                setStatus(`Loaded ${employeesCache.length} of ${totalElements} employee${totalElements === 1 ? "" : "s"}.`, "success");
-            }
-        } catch (error) {
-            setStatus(error.message, "error");
-        }
-    }
+            renderProducts(productsCache);
 
-    function startEdit(id) {
-        const employee = employeesCache.find((e) => e.id === id);
-        if (!employee) {
-            return;
-        }
-
-        editingId = id;
-        formTitle.textContent = "Edit Employee";
-        saveButton.textContent = "Update";
-        firstNameInput.value = employee.firstName;
-        lastNameInput.value = employee.lastName;
-        emailInput.value = employee.email;
-        highlightSelection();
-        setStatus(`Editing ${employee.firstName} ${employee.lastName}`);
-        firstNameInput.focus();
-    }
-
-    async function deleteEmployee(id) {
-        const employee = employeesCache.find((e) => e.id === id);
-        if (!employee) {
-            return;
-        }
-
-        if (!window.confirm(`Delete ${employee.firstName} ${employee.lastName}?`)) {
-            return;
-        }
-
-        try {
-            await requestJson(`/employees/${id}`, { method: "DELETE" });
-            if (editingId === id) {
-                resetForm();
-            }
-            await loadEmployees();
-            setStatus("Employee deleted.", "success");
+            const page = data.page || 0;
+            paginationInfo.textContent = `Page ${page + 1} of ${Math.max(totalPages, 1)} | ${totalElements} total`;
+            prevPageButton.disabled = !data.hasPrevious;
+            nextPageButton.disabled = !data.hasNext;
         } catch (error) {
             setStatus(error.message, "error");
         }
@@ -544,13 +427,14 @@
         event.preventDefault();
 
         const payload = {
-            firstName: firstNameInput.value,
-            lastName: lastNameInput.value,
-            email: emailInput.value
+            name: nameInput.value,
+            sku: skuInput.value,
+            price: Number(priceInput.value),
+            quantity: Number(quantityInput.value)
         };
 
         const isEdit = editingId !== null;
-        const url = isEdit ? `/employees/${editingId}` : "/employees";
+        const url = isEdit ? `/products/${editingId}` : "/products";
         const method = isEdit ? "PUT" : "POST";
 
         try {
@@ -558,27 +442,26 @@
                 method,
                 body: JSON.stringify(payload)
             });
-            await loadEmployees();
-            const label = isEdit ? "Employee updated." : "Employee created.";
             resetForm();
-            setStatus(label, "success");
+            await loadProducts();
+            setStatus(isEdit ? "Product updated." : "Product created.", "success");
         } catch (error) {
             setStatus(error.message, "error");
         }
     });
 
     cancelButton.addEventListener("click", resetForm);
-    refreshButton.addEventListener("click", loadEmployees);
+    refreshButton.addEventListener("click", loadProducts);
     prevPageButton.addEventListener("click", async () => {
         if (currentPage > 0) {
             currentPage -= 1;
-            await loadEmployees();
+            await loadProducts();
         }
     });
     nextPageButton.addEventListener("click", async () => {
         if (currentPage + 1 < totalPages) {
             currentPage += 1;
-            await loadEmployees();
+            await loadProducts();
         }
     });
     searchInput.addEventListener("input", () => {
@@ -587,16 +470,14 @@
         if (searchDebounceTimer) {
             clearTimeout(searchDebounceTimer);
         }
-        searchDebounceTimer = window.setTimeout(() => {
-            loadEmployees();
-        }, 200);
+        searchDebounceTimer = window.setTimeout(loadProducts, 200);
     });
     logoutButton.addEventListener("click", () => {
-        sessionStorage.removeItem("employeeAppUser");
+        sessionStorage.removeItem("workspaceUser");
         window.location.replace("/login.html");
     });
 
-    loadEmployees();
+    loadProducts();
 </script>
 </body>
 </html>

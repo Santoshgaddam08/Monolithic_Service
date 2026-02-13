@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Sign In | Employee Workspace</title>
+    <title>Secure Sign In | Product Workspace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -271,8 +271,8 @@
 <main class="login-shell">
     <section class="brand">
         <div class="suite">Operations Suite</div>
-        <h1>Employee Workspace</h1>
-        <p>Secure access for workforce operations, records governance, and internal reporting.</p>
+        <h1>Product Workspace</h1>
+        <p>Secure access for catalog operations, inventory controls, and internal reporting.</p>
         <div class="trust-list">
             <div class="trust-item">Role-based access entry point</div>
             <div class="trust-item">Auditable session lifecycle</div>
@@ -285,7 +285,7 @@
             <h2>Sign In</h2>
             <div class="policy">Policy SOC-2</div>
         </div>
-        <p class="hint">Authenticate to continue to the employee management dashboard.</p>
+        <p class="hint">Authenticate to continue to the product and inventory dashboard.</p>
 
         <form id="loginForm">
             <label>
@@ -308,12 +308,12 @@
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
 
-    const sessionUser = sessionStorage.getItem("employeeAppUser");
+    const sessionUser = sessionStorage.getItem("workspaceUser");
     if (sessionUser) {
         window.location.replace("/index.html");
     }
 
-    const VALID_EMAIL = "sgaddam@employee.com";
+    const VALID_EMAIL = "sgaddam@product.com";
     const VALID_PASSWORD = "Skumar@2000";
 
     function setStatus(message, tone = "") {
@@ -332,7 +332,7 @@
             return;
         }
 
-        sessionStorage.setItem("employeeAppUser", email);
+        sessionStorage.setItem("workspaceUser", email);
         setStatus("Login successful. Redirecting...", "success");
         window.setTimeout(() => {
             window.location.replace("/index.html");

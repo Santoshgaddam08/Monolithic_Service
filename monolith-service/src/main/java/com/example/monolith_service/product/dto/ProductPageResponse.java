@@ -1,10 +1,10 @@
-package com.example.monolith_service.employee.dto;
+package com.example.monolith_service.product.dto;
 
 import java.util.List;
 
-public class EmployeePageResponse {
+public class ProductPageResponse {
 
-    private final List<EmployeeResponse> items;
+    private final List<ProductResponse> items;
     private final int page;
     private final int size;
     private final long totalElements;
@@ -12,8 +12,8 @@ public class EmployeePageResponse {
     private final boolean hasNext;
     private final boolean hasPrevious;
 
-    public EmployeePageResponse(
-        List<EmployeeResponse> items,
+    public ProductPageResponse(
+        List<ProductResponse> items,
         int page,
         int size,
         long totalElements,
@@ -30,7 +30,7 @@ public class EmployeePageResponse {
         this.hasPrevious = hasPrevious;
     }
 
-    public List<EmployeeResponse> getItems() {
+    public List<ProductResponse> getItems() {
         return items;
     }
 

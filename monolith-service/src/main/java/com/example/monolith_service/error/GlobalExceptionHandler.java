@@ -44,11 +44,20 @@ public class GlobalExceptionHandler {
         String message = "Data integrity violation";
         String code = "DATA_INTEGRITY_VIOLATION";
         String errorText = ex.getMostSpecificCause() == null ? "" : ex.getMostSpecificCause().getMessage();
-        if (errorText.toLowerCase().contains("email")) {
+        String lowered = errorText.toLowerCase();
+        if (lowered.contains("email")) {
             message = "Email already exists";
             code = "DUPLICATE_EMAIL";
+        } else if (lowered.contains("sku")) {
+            message = "SKU already exists";
+            code = "DUPLICATE_SKU";
         }
         return buildResponse(HttpStatus.CONFLICT, code, message, request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", ex.getMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler(Exception.class)
