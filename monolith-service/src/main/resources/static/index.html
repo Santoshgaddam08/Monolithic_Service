@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Workspace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f6f5ef;
+            --surface: #fffef7;
+            --surface-muted: #f2eee0;
+            --ink: #142218;
+            --accent: #0e7c58;
+            --accent-2: #1f9d78;
+            --danger: #b13e32;
+            --ring: rgba(14, 124, 88, 0.28);
+            --shadow: 0 16px 40px rgba(20, 34, 24, 0.08);
+            --radius-lg: 22px;
+            --radius-md: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Manrope", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(1200px 520px at -12% -18%, #d8f1de 0, transparent 62%),
+                radial-gradient(980px 500px at 110% -10%, #d6ece8 0, transparent 64%),
+                var(--bg);
+        }
+
+        .app-shell {
+            width: min(1080px, 94vw);
+            margin: 42px auto;
+            padding: 26px;
+            border-radius: 30px;
+            border: 1px solid rgba(20, 34, 24, 0.06);
+            background: linear-gradient(145deg, #fffef9 0%, #fcf8ec 100%);
+            box-shadow: var(--shadow);
+            animation: rise 520ms ease-out;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(22px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0;
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            letter-spacing: -0.03em;
+        }
+
+        .subtitle {
+            margin: 8px 0 0;
+            color: rgba(20, 34, 24, 0.72);
+            font-size: 0.98rem;
+        }
+
+        .badge {
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #fff;
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+            padding: 8px 12px;
+            border-radius: 999px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid rgba(20, 34, 24, 0.09);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+        }
+
+        .card h2 {
+            margin: 0 0 12px;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 1.18rem;
+        }
+
+        form {
+            display: grid;
+            gap: 12px;
+        }
+
+        label {
+            display: grid;
+            gap: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        input {
+            width: 100%;
+            border: 1px solid rgba(20, 34, 24, 0.16);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            padding: 10px 11px;
+            font-size: 0.96rem;
+            outline: none;
+            transition: border-color 130ms ease, box-shadow 130ms ease;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--ring);
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 10px 12px;
+            transition: transform 120ms ease, opacity 120ms ease;
+        }
+
+        button:hover { transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+
+        .btn-primary {
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+            color: #fff;
+        }
+
+        .btn-muted {
+            background: var(--surface-muted);
+            color: var(--ink);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .list-controls {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .list-controls input {
+            padding: 9px 10px;
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info {
+            font-size: 0.86rem;
+            color: rgba(20, 34, 24, 0.72);
+        }
+
+        .page-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-buttons button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .list {
+            display: grid;
+            gap: 10px;
+            max-height: 470px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .employee-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+            border: 1px solid rgba(20, 34, 24, 0.09);
+            border-radius: var(--radius-md);
+            padding: 11px 13px;
+            background: #fff;
+            transition: border-color 130ms ease, box-shadow 130ms ease;
+        }
+
+        .employee-row:hover {
+            border-color: rgba(14, 124, 88, 0.45);
+            box-shadow: 0 8px 18px rgba(14, 124, 88, 0.08);
+        }
+
+        .employee-row.selected {
+            border-color: rgba(14, 124, 88, 0.72);
+            box-shadow: 0 0 0 3px rgba(14, 124, 88, 0.14);
+        }
+
+        .name {
+            font-size: 0.97rem;
+            font-weight: 800;
+            margin-bottom: 3px;
+        }
+
+        .meta {
+            font-size: 0.85rem;
+            color: rgba(20, 34, 24, 0.66);
+            word-break: break-all;
+        }
+
+        .row-buttons {
+            display: flex;
+            gap: 7px;
+        }
+
+        .btn-danger {
+            background: rgba(177, 62, 50, 0.14);
+            color: var(--danger);
+        }
+
+        .status {
+            margin-top: 12px;
+            min-height: 22px;
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .status.error { color: var(--danger); }
+        .status.success { color: var(--accent); }
+
+        .empty {
+            text-align: center;
+            padding: 28px 14px;
+            border-radius: var(--radius-md);
+            border: 1px dashed rgba(20, 34, 24, 0.2);
+            color: rgba(20, 34, 24, 0.68);
+            background: #fff;
+        }
+
+        @media (max-width: 900px) {
+            .app-shell { margin: 20px auto; padding: 15px; }
+            .layout { grid-template-columns: 1fr; }
+            .hero { align-items: flex-start; flex-direction: column; margin-bottom: 16px; }
+        }
+    </style>
+</head>
+<body>
+<main class="app-shell">
+    <header class="hero">
+        <div>
+            <h1>Employee Workspace</h1>
+            <p class="subtitle">Create, edit, and manage your team with a fast Spring Boot UI.</p>
+        </div>
+        <div class="actions">
+            <span class="badge">Monolith Service</span>
+            <button class="btn-muted" id="logoutButton" type="button">Logout</button>
+        </div>
+    </header>
+
+    <section class="layout">
+        <article class="card">
+            <h2 id="formTitle">Add Employee</h2>
+            <form id="employeeForm">
+                <label>
+                    First Name
+                    <input id="firstName" name="firstName" required maxlength="60" autocomplete="given-name">
+                </label>
+                <label>
+                    Last Name
+                    <input id="lastName" name="lastName" required maxlength="60" autocomplete="family-name">
+                </label>
+                <label>
+                    Email
+                    <input id="email" name="email" required maxlength="120" type="email" autocomplete="email">
+                </label>
+                <div class="actions">
+                    <button class="btn-primary" id="saveButton" type="submit">Create</button>
+                    <button class="btn-muted" id="cancelButton" type="button">Clear</button>
+                </div>
+            </form>
+            <div class="status" id="status"></div>
+        </article>
+
+        <article class="card">
+            <div class="toolbar">
+                <h2 style="margin: 0;">Employees</h2>
+                <button class="btn-muted" id="refreshButton" type="button">Refresh</button>
+            </div>
+            <div class="list-controls">
+                <input id="searchInput" type="search" placeholder="Search by first name, last name, or email">
+            </div>
+            <div class="list" id="employeeList"></div>
+            <div class="pagination">
+                <div class="pagination-info" id="paginationInfo">Page 1 of 1</div>
+                <div class="page-buttons">
+                    <button class="btn-muted" id="prevPageButton" type="button">Previous</button>
+                    <button class="btn-muted" id="nextPageButton" type="button">Next</button>
+                </div>
+            </div>
+        </article>
+    </section>
+</main>
+
+<script>
+    const form = document.getElementById("employeeForm");
+    const list = document.getElementById("employeeList");
+    const statusEl = document.getElementById("status");
+    const formTitle = document.getElementById("formTitle");
+    const saveButton = document.getElementById("saveButton");
+    const cancelButton = document.getElementById("cancelButton");
+    const refreshButton = document.getElementById("refreshButton");
+    const logoutButton = document.getElementById("logoutButton");
+    const searchInput = document.getElementById("searchInput");
+    const paginationInfo = document.getElementById("paginationInfo");
+    const prevPageButton = document.getElementById("prevPageButton");
+    const nextPageButton = document.getElementById("nextPageButton");
+    const firstNameInput = document.getElementById("firstName");
+    const lastNameInput = document.getElementById("lastName");
+    const emailInput = document.getElementById("email");
+
+    const loggedInUser = sessionStorage.getItem("employeeAppUser");
+    if (!loggedInUser) {
+        window.location.replace("/login.html");
+    }
+
+    let editingId = null;
+    let employeesCache = [];
+    let currentPage = 0;
+    const pageSize = 10;
+    let totalPages = 1;
+    let totalElements = 0;
+    let searchQuery = "";
+    let searchDebounceTimer = null;
+
+    function setStatus(message, tone = "") {
+        statusEl.textContent = message;
+        statusEl.className = "status" + (tone ? " " + tone : "");
+    }
+
+    function resetForm() {
+        editingId = null;
+        form.reset();
+        formTitle.textContent = "Add Employee";
+        saveButton.textContent = "Create";
+        highlightSelection();
+        setStatus("");
+        firstNameInput.focus();
+    }
+
+    function highlightSelection() {
+        document.querySelectorAll(".employee-row").forEach((row) => {
+            const id = Number(row.dataset.id);
+            row.classList.toggle("selected", editingId === id);
+        });
+    }
+
+    function renderEmployees(items) {
+        list.innerHTML = "";
+
+        if (!items.length) {
+            list.innerHTML = '<div class="empty">No employees yet. Add one from the form.</div>';
+            return;
+        }
+
+        items.forEach((employee, index) => {
+            const row = document.createElement("div");
+            row.className = "employee-row";
+            row.dataset.id = employee.id;
+            row.style.animation = `rise 260ms ease-out ${index * 25}ms backwards`;
+            row.innerHTML = `
+                <div>
+                    <div class="name">${employee.firstName} ${employee.lastName}</div>
+                    <div class="meta">${employee.email}</div>
+                </div>
+                <div class="row-buttons">
+                    <button class="btn-muted" data-action="edit">Edit</button>
+                    <button class="btn-danger" data-action="delete">Delete</button>
+                </div>
+            `;
+
+            row.addEventListener("click", (event) => {
+                const button = event.target.closest("button");
+                if (!button) {
+                    return;
+                }
+
+                const action = button.getAttribute("data-action");
+                if (action === "edit") {
+                    startEdit(employee.id);
+                } else if (action === "delete") {
+                    deleteEmployee(employee.id);
+                }
+            });
+
+            list.appendChild(row);
+        });
+
+        highlightSelection();
+    }
+
+    function updatePagination(hasPrevious, hasNext, page, totalPageCount, totalItemCount) {
+        const safeTotalPages = Math.max(totalPageCount, 1);
+        paginationInfo.textContent = `Page ${page + 1} of ${safeTotalPages} | ${totalItemCount} total`;
+        prevPageButton.disabled = !hasPrevious;
+        nextPageButton.disabled = !hasNext;
+    }
+
+    async function requestJson(url, options = {}) {
+        const response = await fetch(url, {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            ...options
+        });
+
+        if (!response.ok) {
+            let message = "Request failed";
+            try {
+                const body = await response.json();
+                message = body.message || message;
+            } catch (_) {
+            }
+            throw new Error(message);
+        }
+
+        if (response.status === 204) {
+            return null;
+        }
+
+        return response.json();
+    }
+
+    async function loadEmployees() {
+        try {
+            const params = new URLSearchParams({
+                page: String(currentPage),
+                size: String(pageSize),
+                sortBy: "id",
+                direction: "asc"
+            });
+            if (searchQuery) {
+                params.set("search", searchQuery);
+            }
+
+            const data = await requestJson(`/employees?${params.toString()}`);
+            if ((data.totalPages || 0) > 0 && currentPage >= data.totalPages) {
+                currentPage = data.totalPages - 1;
+                await loadEmployees();
+                return;
+            }
+            employeesCache = data.items || [];
+            totalPages = data.totalPages || 1;
+            totalElements = data.totalElements || 0;
+            renderEmployees(employeesCache);
+            updatePagination(data.hasPrevious, data.hasNext, data.page || 0, totalPages, totalElements);
+            if (!editingId) {
+                setStatus(`Loaded ${employeesCache.length} of ${totalElements} employee${totalElements === 1 ? "" : "s"}.`, "success");
+            }
+        } catch (error) {
+            setStatus(error.message, "error");
+        }
+    }
+
+    function startEdit(id) {
+        const employee = employeesCache.find((e) => e.id === id);
+        if (!employee) {
+            return;
+        }
+
+        editingId = id;
+        formTitle.textContent = "Edit Employee";
+        saveButton.textContent = "Update";
+        firstNameInput.value = employee.firstName;
+        lastNameInput.value = employee.lastName;
+        emailInput.value = employee.email;
+        highlightSelection();
+        setStatus(`Editing ${employee.firstName} ${employee.lastName}`);
+        firstNameInput.focus();
+    }
+
+    async function deleteEmployee(id) {
+        const employee = employeesCache.find((e) => e.id === id);
+        if (!employee) {
+            return;
+        }
+
+        if (!window.confirm(`Delete ${employee.firstName} ${employee.lastName}?`)) {
+            return;
+        }
+
+        try {
+            await requestJson(`/employees/${id}`, { method: "DELETE" });
+            if (editingId === id) {
+                resetForm();
+            }
+            await loadEmployees();
+            setStatus("Employee deleted.", "success");
+        } catch (error) {
+            setStatus(error.message, "error");
+        }
+    }
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const payload = {
+            firstName: firstNameInput.value,
+            lastName: lastNameInput.value,
+            email: emailInput.value
+        };
+
+        const isEdit = editingId !== null;
+        const url = isEdit ? `/employees/${editingId}` : "/employees";
+        const method = isEdit ? "PUT" : "POST";
+
+        try {
+            await requestJson(url, {
+                method,
+                body: JSON.stringify(payload)
+            });
+            await loadEmployees();
+            const label = isEdit ? "Employee updated." : "Employee created.";
+            resetForm();
+            setStatus(label, "success");
+        } catch (error) {
+            setStatus(error.message, "error");
+        }
+    });
+
+    cancelButton.addEventListener("click", resetForm);
+    refreshButton.addEventListener("click", loadEmployees);
+    prevPageButton.addEventListener("click", async () => {
+        if (currentPage > 0) {
+            currentPage -= 1;
+            await loadEmployees();
+        }
+    });
+    nextPageButton.addEventListener("click", async () => {
+        if (currentPage + 1 < totalPages) {
+            currentPage += 1;
+            await loadEmployees();
+        }
+    });
+    searchInput.addEventListener("input", () => {
+        searchQuery = searchInput.value.trim();
+        currentPage = 0;
+        if (searchDebounceTimer) {
+            clearTimeout(searchDebounceTimer);
+        }
+        searchDebounceTimer = window.setTimeout(() => {
+            loadEmployees();
+        }, 200);
+    });
+    logoutButton.addEventListener("click", () => {
+        sessionStorage.removeItem("employeeAppUser");
+        window.location.replace("/login.html");
+    });
+
+    loadEmployees();
+</script>
+</body>
+</html>
