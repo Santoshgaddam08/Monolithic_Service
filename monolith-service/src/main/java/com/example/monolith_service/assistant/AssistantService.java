@@ -40,6 +40,33 @@ public class AssistantService {
         List<Ticket> tickets = ticketRepository.findAll();
 
         if (tickets.isEmpty()) {
+            if (containsAny(message, "how many open", "open tickets", "open count")) {
+                return new ChatResponse("Open tickets: 0.", defaultSuggestions());
+            }
+            if (containsAny(message, "how many in progress", "in progress tickets")) {
+                return new ChatResponse("In-progress tickets: 0.", defaultSuggestions());
+            }
+            if (containsAny(message, "how many blocked", "blocked tickets")) {
+                return new ChatResponse("Blocked tickets: 0.", defaultSuggestions());
+            }
+            if (containsAny(message, "how many resolved", "resolved tickets")) {
+                return new ChatResponse("Resolved tickets: 0.", defaultSuggestions());
+            }
+            if (containsAny(message, "summary", "overview", "dashboard")) {
+                return new ChatResponse(
+                    "Queue summary: total=0, open=0, inProgress=0, blocked=0, resolved=0, breached=0, dueSoon=0.",
+                    defaultSuggestions()
+                );
+            }
+            if (containsAny(message, "breach", "escalate", "overdue")) {
+                return new ChatResponse("No active SLA breaches right now.", defaultSuggestions());
+            }
+            if (containsAny(message, "due soon", "sla risk")) {
+                return new ChatResponse("No tickets are due within the next 30 minutes.", defaultSuggestions());
+            }
+            if (containsAny(message, "next", "what should i do", "action")) {
+                return new ChatResponse("No active tickets. Queue is clear.", defaultSuggestions());
+            }
             return new ChatResponse(
                 "There are no tickets yet. Create incoming issues and I can prioritize, detect SLA risk, and suggest actions.",
                 defaultSuggestions()
