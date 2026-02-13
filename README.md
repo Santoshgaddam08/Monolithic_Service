@@ -1,85 +1,59 @@
-# Monolithic Service
+# SLA Queue Monitor - Microservices
 
-Spring Boot monolith for **real-time support queue and SLA monitoring**.
+This repository now contains a **microservices split** of the original monolith.
 
-## Stack
-- Java 17+
-- Spring Boot 4.0.2
-- Spring Web MVC
-- Spring Data JPA
-- H2 (dev) / PostgreSQL (prod)
-- Flyway
-- Static HTML/CSS/JS frontend
+## Services
 
-## What It Solves
-- Tracks incoming incidents/tickets in one queue
-- Monitors SLA in real time (countdown, due soon, breached)
-- Enables fast operations (status transitions, assignment, escalations)
-- Provides AI triage assistant for summary and next-best action
+- `ticket-service` (port `8081` by default)
+  - Owns ticket domain and SLA queue APIs
+  - Serves frontend pages (`/login.html`, `/index.html`)
+  - Endpoints: `/tickets/**`, `/health`
 
-## Features
-- Ticket CRUD
-- Status workflow: `OPEN`, `IN_PROGRESS`, `BLOCKED`, `RESOLVED`
-- Priority levels: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`
-- Assignment workflow
-- Queue filters/search/sort/pagination
-- SLA summary metrics endpoint
-- Real-time frontend countdown and breach highlighting
-- Bulk escalate breached tickets (UI action)
-- AI assistant endpoint for triage insights
+- `assistant-service` (port `8082` by default)
+  - Owns AI chat endpoint
+  - Reads ticket data from `ticket-service` over HTTP
+  - Endpoint: `/assistant/chat`
 
-## API
-Base URL: `http://localhost:8080`
+## Architecture
 
-- `POST /tickets`
-- `GET /tickets`
-- `GET /tickets/{id}`
-- `PUT /tickets/{id}`
-- `PATCH /tickets/{id}/status`
-- `PATCH /tickets/{id}/assign`
-- `GET /tickets/summary`
-- `DELETE /tickets/{id}`
-- `POST /assistant/chat`
-
-### `GET /tickets` query params
-- `page` (default `0`)
-- `size` (default `10`)
-- `sortBy` (`id`, `title`, `priority`, `status`, `slaDueAt`, `createdAt`)
-- `direction` (`asc`, `desc`)
-- `search` (title/customer/email)
-- `status` (optional)
-- `priority` (optional)
-
-## Sample Ticket Create
-```json
-{
-  "title": "Checkout fails for VISA cards",
-  "description": "Customers see timeout while paying with VISA",
-  "customerName": "Ava Miles",
-  "customerEmail": "ava@example.com",
-  "priority": "CRITICAL",
-  "assignedTo": "Rohit",
-  "slaMinutes": 15
-}
-```
+- Frontend is hosted by `ticket-service`
+- Frontend calls AI service at `http://localhost:8082/assistant/chat`
+- `assistant-service` calls `ticket-service` at `http://localhost:8081/tickets`
 
 ## Run
+
+Open two terminals.
+
+### 1) Start ticket-service
+
 ```powershell
-cd monolith-service
+cd ticket-service
 .\mvnw.cmd spring-boot:run
 ```
 
-To run on port 8081:
+### 2) Start assistant-service
+
 ```powershell
-$env:SERVER_PORT="8081"
+cd assistant-service
 .\mvnw.cmd spring-boot:run
 ```
 
-## Login (UI)
-- URL: `http://localhost:8080/login.html`
+## Access
+
+- UI: `http://localhost:8081/login.html`
+- Ticket API summary: `http://localhost:8081/tickets/summary`
+- AI chat API: `http://localhost:8082/assistant/chat`
+
+## Login
+
 - Email: `sgaddam@ops.com`
 - Password: `Skumar@2000`
 
-## Notes
-- Dev profile uses H2 in-memory DB and auto schema update for fast local iteration.
-- Migration script is in `monolith-service/src/main/resources/db/migration/V1__create_tickets_table.sql`.
+## Useful env vars
+
+### ticket-service
+- `SERVER_PORT` (default `8081`)
+
+### assistant-service
+- `SERVER_PORT` (default `8082`)
+- `TICKET_SERVICE_BASE_URL` (default `http://localhost:8081`)

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Sign In | SLA Queue Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f4f6;--surface:#fff;--line:#e5e7eb;--ink:#0f172a;--muted:#64748b;--accent:#2563eb;--ok:#16a34a;--bad:#dc2626;--shadow:0 12px 28px rgba(15,23,42,.08)}
+*{box-sizing:border-box} body{margin:0;min-height:100vh;background:var(--bg);font-family:"Inter",sans-serif;color:var(--ink);display:grid;place-items:center;padding:20px}
+.wrap{width:min(980px,96vw);display:grid;grid-template-columns:1.05fr 1fr;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.hero{padding:34px;background:linear-gradient(160deg,#eff6ff,#dbeafe)} .hero h1{margin:0 0 10px;font-size:2.2rem;letter-spacing:-.03em}.hero p{margin:0;color:#334155;line-height:1.5}
+.badges{display:grid;gap:9px;margin-top:20px}.badge{padding:8px 10px;border:1px solid #bfdbfe;background:#f8fbff;border-radius:10px;color:#1e40af;font-size:.9rem;font-weight:600}
+.card{padding:30px;display:grid;align-content:center;background:#fff}.card h2{margin:0 0 8px;font-size:1.6rem}.hint{margin:0 0 16px;color:var(--muted)}
+form{display:grid;gap:10px} label{display:grid;gap:6px;font-weight:600;font-size:.88rem} input{border:1px solid var(--line);border-radius:10px;padding:11px;font-size:.95rem}
+button{margin-top:6px;border:1px solid var(--accent);border-radius:10px;padding:11px 13px;color:#fff;font-weight:700;cursor:pointer;background:var(--accent)}
+.status{min-height:22px;margin-top:10px;font-size:.9rem;font-weight:600}.status.error{color:var(--bad)}.status.success{color:var(--ok)}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<h1>SLA Queue Monitor</h1>
+<p>Real-time tracking for support queue, SLA risk, and incident escalation.</p>
+<div class="badges"><div class="badge">Live dashboard with SLA trend chart</div><div class="badge">AI triage assistant for exact ticket queries</div><div class="badge">Operations-focused queue actions</div></div>
+</section>
+<section class="card">
+<h2>Sign In</h2>
+<p class="hint">Authenticate to continue to the SLA dashboard.</p>
+<form id="loginForm">
+<label>Corporate Email<input id="email" type="email" autocomplete="email" required></label>
+<label>Password<input id="password" type="password" autocomplete="current-password" required></label>
+<button type="submit">Authenticate</button>
+</form>
+<div class="status" id="status"></div>
+</section>
+</main>
+<script>
+const loginForm=document.getElementById("loginForm");const statusEl=document.getElementById("status");const emailInput=document.getElementById("email");const passwordInput=document.getElementById("password");
+const sessionUser=sessionStorage.getItem("workspaceUser");if(sessionUser){window.location.replace("/index.html");}
+const VALID_EMAIL="sgaddam@ops.com";const VALID_PASSWORD="Skumar@2000";
+function setStatus(message,tone=""){statusEl.textContent=message;statusEl.className="status"+(tone?" "+tone:"");}
+loginForm.addEventListener("submit",(event)=>{event.preventDefault();const email=emailInput.value.trim().toLowerCase();const password=passwordInput.value;if(email!==VALID_EMAIL||password!==VALID_PASSWORD){setStatus("Invalid email or password.","error");return;}sessionStorage.setItem("workspaceUser",email);setStatus("Login successful. Redirecting...","success");window.setTimeout(()=>{window.location.replace("/index.html");},250);});
+</script>
+</body>
+</html>

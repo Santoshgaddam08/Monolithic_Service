@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLA Queue Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f4f6;--surface:#fff;--soft:#f8fafc;--line:#e5e7eb;--ink:#0f172a;--muted:#64748b;--ok:#16a34a;--risk:#d97706;--bad:#dc2626;--accent:#2563eb;--shadow:0 12px 28px rgba(15,23,42,.08)}
+*{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:"Inter",sans-serif;color:var(--ink);background:var(--bg)}
+.shell{width:min(1320px,95vw);margin:22px auto;display:grid;gap:14px}
+.topbar{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(1.6rem,2.8vw,2.1rem);letter-spacing:-.03em}.sub{margin-top:4px;color:var(--muted);font-size:1.02rem}
+.right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.live{color:#0f5132;font-size:.95rem;display:inline-flex;align-items:center;gap:8px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 6px rgba(22,163,74,.12)}
+button,select,input,textarea{font:inherit} button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 12px;font-weight:600;cursor:pointer}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn-danger{color:var(--bad);background:#fef2f2;border-color:#fecaca}.btn-soft{background:var(--soft)}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(160px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;min-height:126px;display:grid;align-content:start;gap:8px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.card-title{color:#334155;font-size:1.02rem}.card-value{font-size:2.7rem;font-weight:700;letter-spacing:-.03em}.card-foot{font-size:.95rem;color:#16a34a}.card-foot.down{color:var(--bad)}
+.icon{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;font-size:1.4rem;font-weight:700}.icon.ok{background:#dcfce7;color:var(--ok)}.icon.risk{background:#fef3c7;color:var(--risk)}.icon.bad{background:#fee2e2;color:var(--bad)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px}
+.chart-wrap{border:1px solid var(--line);border-radius:12px;padding:10px;background:#f9fafb}.chart-title{margin:0 0 8px;font-size:1.9rem;font-weight:700;letter-spacing:-.01em}.chart-svg{width:100%;height:320px;display:block}
+.layout{display:grid;grid-template-columns:1.25fr 1fr;gap:12px}
+.controls{display:grid;grid-template-columns:1.2fr repeat(5,.7fr) auto;gap:8px;margin-bottom:10px}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);padding:9px;outline:none}
+.tickets{display:grid;gap:8px;max-height:390px;overflow:auto}.ticket{border:1px solid var(--line);border-radius:12px;background:var(--soft);padding:10px;display:grid;grid-template-columns:1fr auto;gap:8px}
+.tt{font-weight:700}.meta{color:var(--muted);font-size:.83rem;margin-top:4px}.tags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{border:1px solid var(--line);border-radius:999px;padding:3px 8px;font-size:.72rem;font-weight:700;background:#fff}.tag.warn{color:#8a5800;background:#fff7ed;border-color:#fed7aa}.tag.bad{color:var(--bad);background:#fef2f2;border-color:#fecaca}.tag.ok{color:var(--ok);background:#f0fdf4;border-color:#bbf7d0}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap;align-content:center}.pager{margin-top:8px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.84rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px} textarea{min-height:70px;resize:vertical}
+.activity{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--soft);padding:10px;max-height:120px;overflow:auto;color:var(--muted);font-size:.82rem}
+.chat{display:grid;grid-template-rows:auto 1fr auto;gap:8px;min-height:610px}.chatlog{border:1px solid var(--line);border-radius:12px;background:var(--soft);padding:10px;max-height:440px;overflow:auto;display:grid;gap:8px}
+.bubble{max-width:88%;border-radius:12px;padding:9px 10px;font-size:.86rem;line-height:1.45}.user{margin-left:auto;color:#fff;background:var(--accent)}.bot{border:1px solid var(--line);background:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px;font-size:.75rem;cursor:pointer}
+@media (max-width:1120px){.cards{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
+@media (max-width:760px){.controls{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.chart-svg{height:250px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="topbar">
+<div><h1>SLA Queue Monitor</h1><div class="sub">Real-time service level agreement tracking</div></div>
+<div class="right"><div class="live"><span class="live-dot"></span><span id="liveStamp">Live • Updated --</span></div><button id="refresh" type="button">Refresh</button><button id="seed" class="btn-soft" type="button">Seed</button><button id="logout" class="btn-danger" type="button">Logout</button></div>
+</header>
+<section class="cards">
+<article class="card"><div class="card-head"><div class="card-title">Total Queue</div><div class="icon ok">?</div></div><div class="card-value" id="sTotal">0</div><div class="card-foot down" id="queueDelta">0 from last hour</div></article>
+<article class="card"><div class="card-head"><div class="card-title">On Track</div><div class="icon ok">?</div></div><div class="card-value" id="onTrack">0</div></article>
+<article class="card"><div class="card-head"><div class="card-title">At Risk</div><div class="icon risk">?</div></div><div class="card-value" id="sSoon">0</div></article>
+<article class="card"><div class="card-head"><div class="card-title">Breached</div><div class="icon bad">?</div></div><div class="card-value" id="sBreach">0</div></article>
+<article class="card"><div class="card-head"><div class="card-title">SLA Compliance</div><div class="icon bad">?</div></div><div class="card-value" id="compliance">0%</div><div class="card-foot" id="complianceDelta">0% from last hour</div></article>
+</section>
+<section class="panel chart-wrap">
+<h2 class="chart-title">SLA Status Over Time</h2>
+<svg viewBox="0 0 1000 320" class="chart-svg" id="trendSvg">
+<defs><pattern id="grid" width="100" height="64" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 64" fill="none" stroke="#dbe0e7" stroke-width="1"/></pattern></defs>
+<rect x="0" y="0" width="1000" height="280" fill="url(#grid)"/>
+<path id="areaTrack" fill="rgba(16,185,129,0.55)" stroke="#10b981" stroke-width="2"></path>
+<path id="areaRisk" fill="rgba(245,158,11,0.55)" stroke="#f59e0b" stroke-width="2"></path>
+<path id="areaBreach" fill="rgba(239,68,68,0.55)" stroke="#ef4444" stroke-width="2"></path>
+<text x="0" y="306" fill="#64748b" font-size="16">12:00</text><text x="180" y="306" fill="#64748b" font-size="16">12:15</text><text x="360" y="306" fill="#64748b" font-size="16">12:30</text><text x="540" y="306" fill="#64748b" font-size="16">12:45</text><text x="720" y="306" fill="#64748b" font-size="16">13:00</text><text x="900" y="306" fill="#64748b" font-size="16">13:15</text>
+</svg>
+</section>
+<section class="layout">
+<article class="panel">
+<div class="controls">
+<input id="search" placeholder="Search title/customer/email"><select id="statusFilter"><option value="">All Status</option><option>OPEN</option><option>IN_PROGRESS</option><option>BLOCKED</option><option>RESOLVED</option></select><select id="priorityFilter"><option value="">All Priority</option><option>LOW</option><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select><select id="sortBy"><option value="id">ID</option><option value="slaDueAt">SLA</option><option value="priority">Priority</option><option value="createdAt">Created</option><option value="status">Status</option></select><select id="direction"><option value="asc">Asc</option><option value="desc">Desc</option></select><select id="size"><option>10</option><option>20</option><option>50</option></select><button id="escalate" class="btn-primary" type="button">Escalate Breached</button>
+</div>
+<div class="tickets" id="tickets"></div>
+<div class="pager"><div id="pageInfo">Page 1 of 1</div><div class="actions"><button id="prev" class="btn-soft" type="button">Prev</button><button id="next" class="btn-soft" type="button">Next</button></div></div>
+<hr style="border:none;border-top:1px solid var(--line);margin:12px 0;">
+<h3 style="margin:0 0 8px;" id="formTitle">Create Incident Ticket</h3>
+<div class="form-grid"><input id="title" placeholder="Issue title"><select id="priority"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select><input id="customerName" placeholder="Customer name"><input id="customerEmail" placeholder="Customer email"><input id="assignedTo" placeholder="Assignee (optional)"><input id="slaMinutes" type="number" min="5" value="60" placeholder="SLA minutes"></div>
+<div style="margin-top:8px;"><textarea id="description" placeholder="Issue description"></textarea></div>
+<div class="actions" style="margin-top:8px;"><button id="save" class="btn-primary" type="button">Save Ticket</button><button id="clear" class="btn-soft" type="button">Clear</button></div>
+<div class="activity" id="activity"></div>
+</article>
+<article class="panel chat">
+<div><h3 style="margin:0;">AI Triage Assistant</h3><div class="sub">Ask exact ticket questions, SLA risk, and next action recommendations.</div></div>
+<div class="chatlog" id="chatlog"></div>
+<div><div class="chips" id="chips"></div><div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px;"><input id="chatInput" placeholder="Ask: status of ticket #1"><button id="chatSend" class="btn-primary" type="button">Send</button></div></div>
+</article>
+</section>
+</div>
+<script>
+if (!sessionStorage.getItem("workspaceUser")) { window.location.replace("/login.html"); }
+const els={refresh:document.getElementById("refresh"),seed:document.getElementById("seed"),logout:document.getElementById("logout"),liveStamp:document.getElementById("liveStamp"),queueDelta:document.getElementById("queueDelta"),complianceDelta:document.getElementById("complianceDelta"),search:document.getElementById("search"),statusFilter:document.getElementById("statusFilter"),priorityFilter:document.getElementById("priorityFilter"),sortBy:document.getElementById("sortBy"),direction:document.getElementById("direction"),size:document.getElementById("size"),escalate:document.getElementById("escalate"),tickets:document.getElementById("tickets"),pageInfo:document.getElementById("pageInfo"),prev:document.getElementById("prev"),next:document.getElementById("next"),sTotal:document.getElementById("sTotal"),onTrack:document.getElementById("onTrack"),sSoon:document.getElementById("sSoon"),sBreach:document.getElementById("sBreach"),compliance:document.getElementById("compliance"),formTitle:document.getElementById("formTitle"),title:document.getElementById("title"),description:document.getElementById("description"),priority:document.getElementById("priority"),customerName:document.getElementById("customerName"),customerEmail:document.getElementById("customerEmail"),assignedTo:document.getElementById("assignedTo"),slaMinutes:document.getElementById("slaMinutes"),save:document.getElementById("save"),clear:document.getElementById("clear"),activity:document.getElementById("activity"),chatlog:document.getElementById("chatlog"),chips:document.getElementById("chips"),chatInput:document.getElementById("chatInput"),chatSend:document.getElementById("chatSend"),areaTrack:document.getElementById("areaTrack"),areaRisk:document.getElementById("areaRisk"),areaBreach:document.getElementById("areaBreach")};
+const state={page:0,totalPages:1,items:[],editingId:null,timer:null,history:[]};
+async function api(url,options={}){const res=await fetch(url,{headers:{"Content-Type":"application/json"},...options});if(!res.ok){let msg="Request failed";try{msg=(await res.json()).message||msg;}catch(_){}throw new Error(msg);}if(res.status===204)return null;return res.json();}
+function log(msg){const row=document.createElement("div");row.textContent=`[${new Date().toLocaleTimeString()}] ${msg}`;els.activity.prepend(row);while(els.activity.childElementCount>20)els.activity.removeChild(els.activity.lastChild);}
+function fmt(sec){const abs=Math.abs(sec);const m=Math.floor(abs/60);const s=abs%60;return `${sec<0?"-":""}${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;}
+function updateLiveStamp(){els.liveStamp.textContent=`Live • Updated ${new Date().toLocaleTimeString([], { hour:"numeric", minute:"2-digit", second:"2-digit" })}`;}
+function slaTag(t){if(t.status==="RESOLVED")return '<span class="tag ok">Resolved</span>';if(t.breached)return `<span class="tag bad">Breached ${fmt(t.slaSecondsRemaining)}</span>`;if(t.slaSecondsRemaining<=1800)return `<span class="tag warn">At Risk ${fmt(t.slaSecondsRemaining)}</span>`;return `<span class="tag ok">On Track ${fmt(t.slaSecondsRemaining)}</span>`;}
+function renderTickets(items){els.tickets.innerHTML="";if(!items.length){els.tickets.innerHTML='<div class="ticket"><div><div class="tt">No tickets found</div><div class="meta">Create an incident to start live SLA monitoring.</div></div></div>';return;}items.forEach((t)=>{const row=document.createElement("div");row.className="ticket";row.innerHTML=`<div><div class="tt">#${t.id} ${t.title}</div><div class="meta">${t.customerName} (${t.customerEmail}) | Priority: ${t.priority} | Status: ${t.status} | Owner: ${t.assignedTo||"Unassigned"}</div><div class="tags">${slaTag(t)}</div></div><div class="row-actions"><button class="btn-soft" data-a="edit">Edit</button><button class="btn-soft" data-a="prog">Start</button><button class="btn-soft" data-a="block">Block</button><button class="btn-soft" data-a="done">Resolve</button><button class="btn-soft" data-a="assign">Assign</button><button class="btn-danger" data-a="del">Delete</button></div>`;row.addEventListener("click",async(e)=>{const btn=e.target.closest("button");if(!btn)return;const a=btn.getAttribute("data-a");if(a==="edit")return fillForm(t);if(a==="prog")return updateStatus(t.id,"IN_PROGRESS");if(a==="block")return updateStatus(t.id,"BLOCKED");if(a==="done")return updateStatus(t.id,"RESOLVED");if(a==="assign")return assignTicket(t.id);if(a==="del")return deleteTicket(t.id);});els.tickets.appendChild(row);});}
+function areaPath(values,baseline,scaleX,scaleY){const pts=values.map((v,i)=>`${i*scaleX},${baseline-v*scaleY}`);return `M0,${baseline} L${pts.join(" L")} L${(values.length-1)*scaleX},${baseline} Z`;}
+function renderTrend(total,dueSoon,breached){const prev=state.history.length?state.history[state.history.length-1]:null;const onTrack=Math.max(total-dueSoon-breached,0);state.history.push({onTrack,dueSoon,breached});if(state.history.length>12)state.history.shift();const pad=state.history.length<12?Array(12-state.history.length).fill(prev||{onTrack:0,dueSoon:0,breached:0}):[];const points=[...pad,...state.history];const onTrackSeries=points.map(p=>p.onTrack+18);const riskSeries=points.map((p,i)=>onTrackSeries[i]+p.dueSoon+10);const breachSeries=points.map((p,i)=>riskSeries[i]+p.breached+6);const baseline=280;const scaleX=1000/(points.length-1);const scaleY=3.1;els.areaTrack.setAttribute("d",areaPath(onTrackSeries,baseline,scaleX,scaleY));els.areaRisk.setAttribute("d",areaPath(riskSeries,baseline,scaleX,scaleY));els.areaBreach.setAttribute("d",areaPath(breachSeries,baseline,scaleX,scaleY));}
+async function loadSummary(){const s=await api("/tickets/summary");const active=Math.max(s.total-s.resolved,0);const onTrack=Math.max(active-s.dueSoon-s.breached,0);const compliance=active===0?100:Math.round((onTrack/active)*100);const prevTotal=Number(els.sTotal.textContent||"0");const prevCompliance=Number(String(els.compliance.textContent).replace("%","")||"0");els.sTotal.textContent=s.total;els.onTrack.textContent=onTrack;els.sSoon.textContent=s.dueSoon;els.sBreach.textContent=s.breached;els.compliance.textContent=`${compliance}%`;const deltaTotal=s.total-prevTotal;els.queueDelta.textContent=`${deltaTotal>=0?"?":"?"} ${Math.abs(deltaTotal)} from last hour`;els.queueDelta.className=`card-foot ${deltaTotal>0?"down":""}`;const deltaCompliance=compliance-prevCompliance;els.complianceDelta.textContent=`${deltaCompliance>=0?"?":"?"} ${Math.abs(deltaCompliance)}% from last hour`;els.complianceDelta.className=`card-foot ${deltaCompliance<0?"down":""}`;renderTrend(s.total,s.dueSoon,s.breached);updateLiveStamp();}
+async function loadTickets(){const p=new URLSearchParams({page:String(state.page),size:String(els.size.value),sortBy:els.sortBy.value,direction:els.direction.value});if(els.search.value.trim())p.set("search",els.search.value.trim());if(els.statusFilter.value)p.set("status",els.statusFilter.value);if(els.priorityFilter.value)p.set("priority",els.priorityFilter.value);const data=await api(`/tickets?${p.toString()}`);state.items=data.items||[];state.totalPages=Math.max(data.totalPages||1,1);renderTickets(state.items);els.pageInfo.textContent=`Page ${(data.page||0)+1} of ${state.totalPages} | total ${data.totalElements||0}`;els.prev.disabled=!data.hasPrevious;els.next.disabled=!data.hasNext;await loadSummary();}
+function fillForm(t){state.editingId=t.id;els.formTitle.textContent=`Edit Ticket #${t.id}`;els.title.value=t.title;els.description.value=t.description;els.priority.value=t.priority;els.customerName.value=t.customerName;els.customerEmail.value=t.customerEmail;els.assignedTo.value=t.assignedTo||"";els.slaMinutes.value=60;}
+function clearForm(){state.editingId=null;els.formTitle.textContent="Create Incident Ticket";els.title.value="";els.description.value="";els.priority.value="MEDIUM";els.customerName.value="";els.customerEmail.value="";els.assignedTo.value="";els.slaMinutes.value=60;}
+async function saveTicket(){const payload={title:els.title.value.trim(),description:els.description.value.trim(),customerName:els.customerName.value.trim(),customerEmail:els.customerEmail.value.trim(),priority:els.priority.value,assignedTo:els.assignedTo.value.trim(),slaMinutes:Number(els.slaMinutes.value)};const url=state.editingId===null?"/tickets":`/tickets/${state.editingId}`;const method=state.editingId===null?"POST":"PUT";try{await api(url,{method,body:JSON.stringify(payload)});log(`${state.editingId===null?"Created":"Updated"} ticket ${payload.title}`);clearForm();await loadTickets();}catch(e){alert(e.message);}}
+async function updateStatus(id,status){await api(`/tickets/${id}/status`,{method:"PATCH",body:JSON.stringify({status})});log(`Ticket #${id} -> ${status}`);await loadTickets();}
+async function assignTicket(id){const assignedTo=prompt("Assign ticket to:");if(!assignedTo)return;await api(`/tickets/${id}/assign`,{method:"PATCH",body:JSON.stringify({assignedTo})});log(`Ticket #${id} assigned to ${assignedTo}`);await loadTickets();}
+async function deleteTicket(id){if(!confirm("Delete this ticket?"))return;await api(`/tickets/${id}`,{method:"DELETE"});log(`Deleted ticket #${id}`);if(state.editingId===id)clearForm();await loadTickets();}
+async function seed(){const seedData=[{title:"Checkout fails for VISA cards",description:"Customers report payment timeout for VISA.",customerName:"Ava Miles",customerEmail:"ava@example.com",priority:"CRITICAL",assignedTo:"Rohit",slaMinutes:15},{title:"Password reset email delayed",description:"Email arrives after 20 minutes.",customerName:"Liam Fox",customerEmail:"liam@example.com",priority:"HIGH",assignedTo:"Priya",slaMinutes:45},{title:"Mobile app crash on profile",description:"Android app crashes when opening profile.",customerName:"Nina Wells",customerEmail:"nina@example.com",priority:"MEDIUM",assignedTo:"",slaMinutes:90}];let created=0;for(const t of seedData){try{await api("/tickets",{method:"POST",body:JSON.stringify(t)});created+=1;}catch(_){}}log(`Seeded ${created} incidents`);await loadTickets();}
+async function escalateBreached(){const breached=state.items.filter((t)=>t.breached);if(!breached.length){alert("No breached tickets on current page.");return;}for(const t of breached){await updateStatus(t.id,"BLOCKED");if(!t.assignedTo){await api(`/tickets/${t.id}/assign`,{method:"PATCH",body:JSON.stringify({assignedTo:"Escalation Desk"})});}}log(`Escalated ${breached.length} breached tickets`);await loadTickets();}
+function tickCountdown(){state.items=state.items.map((t)=>({...t,slaSecondsRemaining:t.slaSecondsRemaining-(t.status==="RESOLVED"?0:1),breached:t.status!=="RESOLVED"&&(t.slaSecondsRemaining-1)<0}));renderTickets(state.items);}
+function addBubble(text,who){const el=document.createElement("div");el.className=`bubble ${who}`;el.textContent=text;els.chatlog.appendChild(el);els.chatlog.scrollTop=els.chatlog.scrollHeight;}
+function renderChips(items){els.chips.innerHTML="";items.forEach((c)=>{const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=c;b.addEventListener("click",()=>sendChat(c));els.chips.appendChild(b);});}
+const ASSISTANT_BASE_URL=window.localStorage.getItem("assistantBaseUrl")||"http://localhost:8082";`nasync function sendChat(message){const prompt=(message||els.chatInput.value||"").trim();if(!prompt)return;els.chatInput.value="";addBubble(prompt,"user");try{const data=await api(`${ASSISTANT_BASE_URL}/assistant/chat`,{method:"POST",body:JSON.stringify({message:prompt})});addBubble(data.reply||"No response","bot");renderChips(data.suggestions||[]);}catch(e){addBubble(e.message,"bot");}}
+els.save.addEventListener("click",saveTicket);els.clear.addEventListener("click",clearForm);els.seed.addEventListener("click",seed);els.refresh.addEventListener("click",loadTickets);els.escalate.addEventListener("click",escalateBreached);[els.statusFilter,els.priorityFilter,els.sortBy,els.direction,els.size].forEach((el)=>{el.addEventListener("change",()=>{state.page=0;loadTickets();});});els.search.addEventListener("input",()=>{if(state.timer)clearTimeout(state.timer);state.timer=setTimeout(()=>{state.page=0;loadTickets();},220);});els.prev.addEventListener("click",()=>{if(state.page>0){state.page-=1;loadTickets();}});els.next.addEventListener("click",()=>{if(state.page+1<state.totalPages){state.page+=1;loadTickets();}});els.logout.addEventListener("click",()=>{sessionStorage.removeItem("workspaceUser");window.location.replace("/login.html");});els.chatSend.addEventListener("click",()=>sendChat());els.chatInput.addEventListener("keydown",(e)=>{if(e.key==="Enter"){e.preventDefault();sendChat();}});
+setInterval(tickCountdown,1000);setInterval(loadSummary,12000);setInterval(updateLiveStamp,1000);addBubble("I can help triage incidents. Ask for summary, SLA breaches, workload, or exact ticket questions.","bot");renderChips(["Give me queue summary","How many open tickets?","status of ticket #1","Show SLA breaches"]);clearForm();loadTickets();
+</script>
+</body>
+</html>
+
