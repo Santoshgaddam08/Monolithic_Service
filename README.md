@@ -1,81 +1,85 @@
 # Monolithic Service
 
-Spring Boot monolith with Product Catalog and Inventory APIs, Flyway migrations, and static UI pages.
+Spring Boot monolith for **real-time support queue and SLA monitoring**.
 
-## Tech Stack
-- Java 17
+## Stack
+- Java 17+
 - Spring Boot 4.0.2
 - Spring Web MVC
 - Spring Data JPA
+- H2 (dev) / PostgreSQL (prod)
 - Flyway
-- H2 (dev)
-- PostgreSQL (prod)
-- springdoc OpenAPI (Swagger UI)
+- Static HTML/CSS/JS frontend
+
+## What It Solves
+- Tracks incoming incidents/tickets in one queue
+- Monitors SLA in real time (countdown, due soon, breached)
+- Enables fast operations (status transitions, assignment, escalations)
+- Provides AI triage assistant for summary and next-best action
 
 ## Features
-- Product CRUD APIs
-- Inventory adjustment endpoint
-- Pagination, sorting, search, and CSV export from the dashboard
-- Dashboard KPIs (total products, low stock, out-of-stock, inventory value)
-- Bulk restock and demo data seed actions
-- AI Inventory Copilot chat (local backend endpoint)
-- Request validation and global exception handling
-- Flyway-managed schema
-- Profiles:
-  - `dev` (default): H2 in-memory
-  - `prod`: PostgreSQL via env vars
+- Ticket CRUD
+- Status workflow: `OPEN`, `IN_PROGRESS`, `BLOCKED`, `RESOLVED`
+- Priority levels: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`
+- Assignment workflow
+- Queue filters/search/sort/pagination
+- SLA summary metrics endpoint
+- Real-time frontend countdown and breach highlighting
+- Bulk escalate breached tickets (UI action)
+- AI assistant endpoint for triage insights
 
-## Endpoints
+## API
 Base URL: `http://localhost:8080`
 
-- `GET /` -> redirects to `/login.html`
-- `GET /health` -> `OK`
-- `POST /products`
-- `GET /products`
-- `GET /products/{id}`
-- `PUT /products/{id}`
-- `PATCH /products/{id}/inventory` (body: `{ "delta": 5 }` or negative)
-- `DELETE /products/{id}`
-- `POST /assistant/chat` (body: `{ "message": "Give me a summary" }`)
+- `POST /tickets`
+- `GET /tickets`
+- `GET /tickets/{id}`
+- `PUT /tickets/{id}`
+- `PATCH /tickets/{id}/status`
+- `PATCH /tickets/{id}/assign`
+- `GET /tickets/summary`
+- `DELETE /tickets/{id}`
+- `POST /assistant/chat`
 
-## `GET /products` Query Params
+### `GET /tickets` query params
 - `page` (default `0`)
-- `size` (default `10`, max `100`)
-- `sortBy` (`id`, `name`, `sku`, `price`, `quantity`)
+- `size` (default `10`)
+- `sortBy` (`id`, `title`, `priority`, `status`, `slaDueAt`, `createdAt`)
 - `direction` (`asc`, `desc`)
-- `search` (optional: name or SKU)
+- `search` (title/customer/email)
+- `status` (optional)
+- `priority` (optional)
 
-## Product Request Example
+## Sample Ticket Create
 ```json
 {
-  "name": "Wireless Mouse",
-  "sku": "MOUSE-WL-001",
-  "price": 25.99,
-  "quantity": 50
+  "title": "Checkout fails for VISA cards",
+  "description": "Customers see timeout while paying with VISA",
+  "customerName": "Ava Miles",
+  "customerEmail": "ava@example.com",
+  "priority": "CRITICAL",
+  "assignedTo": "Rohit",
+  "slaMinutes": 15
 }
 ```
 
-## Run Locally
+## Run
 ```powershell
 cd monolith-service
 .\mvnw.cmd spring-boot:run
 ```
 
-App URL: `http://localhost:8080`
-
-## Production Profile Example
+To run on port 8081:
 ```powershell
-cd monolith-service
-$env:SPRING_PROFILES_ACTIVE="prod"
-$env:DB_URL="jdbc:postgresql://localhost:5432/monolithdb"
-$env:DB_USERNAME="postgres"
-$env:DB_PASSWORD="postgres"
+$env:SERVER_PORT="8081"
 .\mvnw.cmd spring-boot:run
 ```
 
-## API Docs
-- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+## Login (UI)
+- URL: `http://localhost:8080/login.html`
+- Email: `sgaddam@ops.com`
+- Password: `Skumar@2000`
 
 ## Notes
-- Flyway migrations are in `monolith-service/src/main/resources/db/migration`.
-- Local runtime logs should be gitignored.
+- Dev profile uses H2 in-memory DB and auto schema update for fast local iteration.
+- Migration script is in `monolith-service/src/main/resources/db/migration/V1__create_tickets_table.sql`.

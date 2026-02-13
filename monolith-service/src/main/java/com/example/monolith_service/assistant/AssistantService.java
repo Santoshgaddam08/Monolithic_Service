@@ -1,104 +1,122 @@
 package com.example.monolith_service.assistant;
 
 import com.example.monolith_service.assistant.dto.ChatResponse;
-import com.example.monolith_service.product.Product;
-import com.example.monolith_service.product.ProductRepository;
+import com.example.monolith_service.ticket.Ticket;
+import com.example.monolith_service.ticket.TicketPriority;
+import com.example.monolith_service.ticket.TicketRepository;
+import com.example.monolith_service.ticket.TicketStatus;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class AssistantService {
 
-    private static final int LOW_STOCK_THRESHOLD = 10;
+    private final TicketRepository ticketRepository;
 
-    private final ProductRepository productRepository;
-
-    public AssistantService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+    public AssistantService(TicketRepository ticketRepository) {
+        this.ticketRepository = ticketRepository;
     }
 
     public ChatResponse chat(String rawMessage) {
         String message = rawMessage == null ? "" : rawMessage.trim().toLowerCase();
-        List<Product> products = productRepository.findAll();
+        List<Ticket> tickets = ticketRepository.findAll();
 
-        if (products.isEmpty()) {
+        if (tickets.isEmpty()) {
             return new ChatResponse(
-                "There are no products yet. Add products first, then I can analyze stock, value, and risks.",
+                "There are no tickets yet. Create incoming issues and I can prioritize, detect SLA risk, and suggest actions.",
                 defaultSuggestions()
             );
         }
 
-        if (containsAny(message, "low stock", "restock", "reorder")) {
-            List<Product> low = lowStock(products);
-            if (low.isEmpty()) {
-                return new ChatResponse("Great news. No low-stock products right now.", defaultSuggestions());
+        if (containsAny(message, "summary", "overview", "dashboard", "status")) {
+            return new ChatResponse(buildSummary(tickets), defaultSuggestions());
+        }
+
+        if (containsAny(message, "breach", "sla", "escalate", "overdue")) {
+            List<Ticket> breached = breachedTickets(tickets);
+            if (breached.isEmpty()) {
+                return new ChatResponse("No active SLA breaches right now.", defaultSuggestions());
             }
-            String details = low.stream()
+            String top = breached.stream()
                 .limit(5)
-                .map(p -> p.getName() + " (" + p.getSku() + "): qty " + p.getQuantity())
+                .map(t -> "#" + t.getId() + " " + t.getTitle())
                 .collect(Collectors.joining("; "));
-            return new ChatResponse("Top low-stock items: " + details, defaultSuggestions());
+            return new ChatResponse("SLA breached tickets: " + top + ". Escalate these first.", defaultSuggestions());
         }
 
-        if (containsAny(message, "inventory value", "stock value", "value")) {
-            BigDecimal totalValue = products.stream()
-                .map(p -> p.getPrice().multiply(BigDecimal.valueOf(p.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-            return new ChatResponse(
-                "Current inventory value is " + formatCurrency(totalValue) + ".",
-                defaultSuggestions()
-            );
+        if (containsAny(message, "high", "critical", "priority")) {
+            long critical = tickets.stream().filter(t -> t.getPriority() == TicketPriority.CRITICAL).count();
+            long high = tickets.stream().filter(t -> t.getPriority() == TicketPriority.HIGH).count();
+            return new ChatResponse("Priority split: critical=" + critical + ", high=" + high + ".", defaultSuggestions());
         }
 
-        if (containsAny(message, "out of stock", "zero stock")) {
-            List<Product> out = products.stream().filter(p -> p.getQuantity() == 0).toList();
-            if (out.isEmpty()) {
-                return new ChatResponse("No products are out of stock.", defaultSuggestions());
+        if (containsAny(message, "owner", "assignee", "workload", "agent")) {
+            Map<String, Long> byAssignee = tickets.stream()
+                .filter(t -> t.getStatus() != TicketStatus.RESOLVED)
+                .collect(Collectors.groupingBy(t -> t.getAssignedTo() == null ? "unassigned" : t.getAssignedTo(), Collectors.counting()));
+            String workload = byAssignee.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(5)
+                .map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining(", "));
+            return new ChatResponse("Current workload: " + workload + ".", defaultSuggestions());
+        }
+
+        if (containsAny(message, "next", "what should i do", "action")) {
+            Ticket next = tickets.stream()
+                .filter(t -> t.getStatus() != TicketStatus.RESOLVED)
+                .min(Comparator.comparing(Ticket::getSlaDueAt))
+                .orElse(null);
+            if (next == null) {
+                return new ChatResponse("No active tickets. Queue is clear.", defaultSuggestions());
             }
-            String names = out.stream().limit(5).map(Product::getName).collect(Collectors.joining(", "));
-            return new ChatResponse("Out-of-stock products: " + names, defaultSuggestions());
-        }
-
-        if (containsAny(message, "most expensive", "highest price", "expensive")) {
-            Product max = products.stream().max(Comparator.comparing(Product::getPrice)).orElse(products.get(0));
             return new ChatResponse(
-                "Highest priced product is " + max.getName() + " (" + max.getSku() + ") at " + formatCurrency(max.getPrice()) + ".",
-                defaultSuggestions()
-            );
-        }
-
-        if (containsAny(message, "summary", "dashboard", "overview", "kpi")) {
-            long lowCount = lowStock(products).size();
-            long outCount = products.stream().filter(p -> p.getQuantity() == 0).count();
-            BigDecimal totalValue = products.stream()
-                .map(p -> p.getPrice().multiply(BigDecimal.valueOf(p.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-            return new ChatResponse(
-                "Overview: products=" + products.size()
-                    + ", lowStock=" + lowCount
-                    + ", outOfStock=" + outCount
-                    + ", inventoryValue=" + formatCurrency(totalValue) + ".",
+                "Next action: work on ticket #" + next.getId() + " - " + next.getTitle() + " (" + next.getPriority() + ").",
                 defaultSuggestions()
             );
         }
 
         return new ChatResponse(
-            "I can help with inventory insights. Ask things like: low stock, inventory value, out of stock, or summary.",
+            "I can help with queue triage. Ask summary, SLA breaches, priority split, owner workload, or next action.",
             defaultSuggestions()
         );
     }
 
-    private static List<Product> lowStock(List<Product> products) {
-        return products.stream()
-            .filter(p -> p.getQuantity() <= LOW_STOCK_THRESHOLD)
-            .sorted(Comparator.comparing(Product::getQuantity))
+    private static List<Ticket> breachedTickets(List<Ticket> tickets) {
+        Instant now = Instant.now();
+        return tickets.stream()
+            .filter(t -> t.getStatus() != TicketStatus.RESOLVED)
+            .filter(t -> t.getSlaDueAt().isBefore(now))
+            .sorted(Comparator.comparing(Ticket::getSlaDueAt))
             .toList();
+    }
+
+    private static String buildSummary(List<Ticket> tickets) {
+        Instant now = Instant.now();
+        long open = tickets.stream().filter(t -> t.getStatus() == TicketStatus.OPEN).count();
+        long inProgress = tickets.stream().filter(t -> t.getStatus() == TicketStatus.IN_PROGRESS).count();
+        long blocked = tickets.stream().filter(t -> t.getStatus() == TicketStatus.BLOCKED).count();
+        long resolved = tickets.stream().filter(t -> t.getStatus() == TicketStatus.RESOLVED).count();
+        long breached = tickets.stream().filter(t -> t.getStatus() != TicketStatus.RESOLVED && t.getSlaDueAt().isBefore(now)).count();
+        long dueSoon = tickets.stream()
+            .filter(t -> t.getStatus() != TicketStatus.RESOLVED)
+            .map(t -> Duration.between(now, t.getSlaDueAt()).getSeconds())
+            .filter(sec -> sec >= 0 && sec <= 1800)
+            .count();
+
+        return "Queue summary: total=" + tickets.size()
+            + ", open=" + open
+            + ", inProgress=" + inProgress
+            + ", blocked=" + blocked
+            + ", resolved=" + resolved
+            + ", breached=" + breached
+            + ", dueSoon=" + dueSoon + ".";
     }
 
     private static boolean containsAny(String text, String... keys) {
@@ -110,16 +128,12 @@ public class AssistantService {
         return false;
     }
 
-    private static String formatCurrency(BigDecimal amount) {
-        return NumberFormat.getCurrencyInstance(Locale.US).format(amount);
-    }
-
     private static List<String> defaultSuggestions() {
         return List.of(
-            "Give me a summary",
-            "Show low stock items",
-            "What is my inventory value?",
-            "Which products are out of stock?"
+            "Give me queue summary",
+            "Show SLA breaches",
+            "Who has most workload?",
+            "What should I handle next?"
         );
     }
 }
