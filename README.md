@@ -15,7 +15,10 @@ Spring Boot monolith with Product Catalog and Inventory APIs, Flyway migrations,
 ## Features
 - Product CRUD APIs
 - Inventory adjustment endpoint
-- Pagination, sorting, and search for products
+- Pagination, sorting, search, and CSV export from the dashboard
+- Dashboard KPIs (total products, low stock, out-of-stock, inventory value)
+- Bulk restock and demo data seed actions
+- AI Inventory Copilot chat (local backend endpoint)
 - Request validation and global exception handling
 - Flyway-managed schema
 - Profiles:
@@ -33,6 +36,7 @@ Base URL: `http://localhost:8080`
 - `PUT /products/{id}`
 - `PATCH /products/{id}/inventory` (body: `{ "delta": 5 }` or negative)
 - `DELETE /products/{id}`
+- `POST /assistant/chat` (body: `{ "message": "Give me a summary" }`)
 
 ## `GET /products` Query Params
 - `page` (default `0`)
